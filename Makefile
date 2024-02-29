@@ -3,9 +3,9 @@ export POSTGRES_PORT=5432
 export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=''
 export POSTGRES_DBNAME=postgres
-export CONFIG_PATH='config.yaml'
+export CONFIG_PATH=${PWD}/config.yaml
 
-.PHONY: build run test compose-up test-run compose-down test-setup test-teardown
+.PHONY: build run test compose-up test-run compose-down test-setup test-teardown run-go
 
 test: test-setup test-run test-teardown
 
@@ -19,7 +19,9 @@ test-run:
 build:
 	go build .
 
-run:
+run: compose-up run-go compose-down
+
+run-go:
 	go run .
 
 compose-up:

@@ -28,6 +28,9 @@ jobs:
       with:
         go-version: '1.21.x'
 
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v4.0.0    
+
     - name: Start containers
       run: make test-setup
 

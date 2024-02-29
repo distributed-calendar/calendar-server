@@ -4,3 +4,5 @@ postgres:
   user: ${POSTGRES_USER}
   password: ${POSTGRES_PASSWORD}
   dbname: ${POSTGRES_DBNAME}
+httpServer:
+  port: 8080
