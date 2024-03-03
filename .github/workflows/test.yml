@@ -28,6 +28,9 @@ jobs:
       with:
         go-version: '1.21.x'
 
+    - name: Setup golang-migrate
+      run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
     - name: Run golangci-lint
       uses: golangci/golangci-lint-action@v4.0.0    
 

@@ -4,33 +4,45 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
-	"os"
 
+	conf "github.com/Mth-Ryan/go-yaml-cfg"
+	calendarhandler "github.com/distributed-calendar/calendar-server/internal/handler/calendar"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httplog/v2"
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
-	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
-	"gopkg.in/yaml.v3"
+
+	calendarservice "github.com/distributed-calendar/calendar-server/internal/service/calendar"
 )
 
 type errFunc func() error
 
 type App struct {
-	cfg    *Config
-	mux    *chi.Mux
-	logger *zap.Logger
+	cfg *Config
+	mux *chi.Mux
 
 	onCleanupFuncs []errFunc
 	onRunFuncs     []errFunc
+
+	pgConnPool *pgxpool.Pool
+
+	calendarService *calendarservice.Service
 }
 
 func (a *App) Run() {
 	defer a.cleanup()
 
+	slog.Info("starting server...")
+
 	if err := a.run(); err != nil {
 		panic(err)
 	}
+
+	slog.Info("server stopped, cleaning up...")
 }
 
 func (a *App) run() error {
@@ -51,7 +63,7 @@ func (a *App) cleanup() {
 	for _, f := range a.onCleanupFuncs {
 		err := f()
 		if err != nil {
-			a.logger.Error("on cleanup error", zap.Error(err))
+			slog.Error("on cleanup error", err)
 		}
 	}
 }
@@ -65,9 +77,17 @@ func (a *App) init(configPath string) error {
 		return err
 	}
 
-	a.initLogger()
 	a.initMux()
+
+	if err := a.initPostgres(); err != nil {
+		return err
+	}
+
 	a.initHttpServer()
+
+	a.initCalendarService()
+
+	a.initCalendarHandler()
 
 	return nil
 }
@@ -83,15 +103,55 @@ func (a *App) initConfig(configPath string) error {
 	return nil
 }
 
-func (a *App) initLogger() {
-	logger := zap.Must(zap.NewProduction())
-
-	a.addOnCleanup(logger.Sync)
-}
-
 func (a *App) initMux() {
 	a.mux = chi.NewMux()
+
+	options := httplog.Options{
+		LogLevel: slog.LevelDebug,
+		JSON:     true,
+	}
+
+	a.mux.Use(
+		httplog.RequestLogger(
+			httplog.NewLogger("calendar-server", options),
+		),
+		middleware.Recoverer,
+	)
+
 	a.mux.Mount("/ping", a.pingHandler())
+}
+
+func (a *App) initPostgres() error {
+	connStr := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s",
+		a.cfg.Postgres.User,
+		a.cfg.Postgres.Password,
+		a.cfg.Postgres.Host,
+		a.cfg.Postgres.Port,
+		a.cfg.Postgres.Dbname,
+	)
+
+	conn, err := pgxpool.New(context.Background(), connStr)
+	if err != nil {
+		return fmt.Errorf("cannot create pgx pool: %w", err)
+	}
+
+	conn.Config().MaxConns = 5
+
+	a.pgConnPool = conn
+
+	a.addOnCleanup(func() error {
+		conn.Close()
+
+		return nil
+	})
+
+	return nil
+}
+
+func (a *App) initCalendarHandler() {
+	handler := calendarhandler.NewHandler(a.calendarService)
+	a.mux.Mount("/", handler)
 }
 
 func (a *App) initHttpServer() {
@@ -101,6 +161,8 @@ func (a *App) initHttpServer() {
 	}
 
 	a.addOnRun(func() error {
+		slog.Info("server started")
+
 		e := server.ListenAndServe()
 		if errors.Is(e, http.ErrServerClosed) {
 			return nil
@@ -114,27 +176,22 @@ func (a *App) pingHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte("pong"))
 		if err != nil {
-			a.logger.Error("cannot write to ping", zap.Error(err))
+			slog.Error("cannot write to ping", err)
 		}
 	})
 }
 
 func newConfig(configPath string) (*Config, error) {
-	cfg := &Config{}
+	if err := conf.InitializeConfigSingleton[Config](configPath); err != nil {
+		return nil, err
+	}
 
-	file, err := os.Open(configPath)
+	cfg, err := conf.GetConfigFromSingleton[Config]()
 	if err != nil {
-		return nil, fmt.Errorf("cannot open config file: %w", err)
-	}
-	defer file.Close()
-
-	decoder := yaml.NewDecoder(file)
-
-	if err := decoder.Decode(&cfg); err != nil {
-		return nil, fmt.Errorf("cannot decode config file: %w", err)
+		return nil, err
 	}
 
-	return cfg, nil
+	return &cfg, nil
 }
 
 func NewApp(configPath string) (*App, error) {

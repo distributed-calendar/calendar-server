@@ -9,9 +9,15 @@ export CONFIG_PATH=${PWD}/config.yaml
 
 test: test-setup test-run test-teardown
 
-test-setup: compose-up
+test-setup: compose-up migrate-up
 
-test-teardown: compose-down
+test-teardown: migrate-down compose-down
+
+migrate-up:
+	migrate -path migrations -database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DBNAME}?sslmode=disable up
+
+migrate-down:
+	migrate -path migrations -database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DBNAME}?sslmode=disable down -all
 
 test-run:
 	go test ./...
@@ -25,7 +31,7 @@ run-go:
 	go run .
 
 compose-up:
-	docker-compose -f docker-compose.yaml up -d
+	docker-compose -f docker-compose.yaml up -d && sleep 2
 
 compose-down:
 	docker-compose -f docker-compose.yaml down -v
