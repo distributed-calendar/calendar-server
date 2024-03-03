@@ -23,6 +23,10 @@ func (service *Service) Calendar(ctx context.Context, id string) (*domain.Calend
 	return service.calendarProvider.Calendar(ctx, id)
 }
 
-func (service *Service) Create(ctx context.Context, calendar *domain.Calendar) error {
+func (service *Service) Create(ctx context.Context, calendar *domain.Calendar) (string, error) {
 	return service.calendarProvider.Create(ctx, calendar)
+}
+
+func (service *Service) Update(ctx context.Context, calendar *domain.Calendar) error {
+	return service.calendarProvider.Update(ctx, calendar)
 }

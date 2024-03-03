@@ -2,19 +2,17 @@ package calendar
 
 import (
 	"encoding/json"
-	"errors"
 	"log/slog"
 	"net/http"
 
 	"github.com/distributed-calendar/calendar-server/domain"
-	"github.com/go-chi/chi/v5"
-
 	"github.com/distributed-calendar/calendar-server/internal/handler/calendar/models"
+	"github.com/go-chi/chi/v5"
 )
 
-func (h *Handler) getCalendar(w http.ResponseWriter, r *http.Request) {
-	calendarID := chi.URLParam(r, "calendarId")
-	if calendarID == "" {
+func (h *Handler) createCalendar(w http.ResponseWriter, r *http.Request) {
+	ownerID := chi.URLParam(r, "ownerId")
+	if ownerID == "" {
 		w.WriteHeader(http.StatusBadRequest)
 
 		return
@@ -22,15 +20,13 @@ func (h *Handler) getCalendar(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	calendar, err := h.calendarService.Calendar(ctx, calendarID)
+	calendar := &domain.Calendar{
+		OwnerID: ownerID,
+	}
+
+	calendarID, err := h.calendarService.Create(ctx, calendar)
 	if err != nil {
-		if errors.Is(err, domain.ErrDataNotFound) {
-			w.WriteHeader(http.StatusNotFound)
-
-			return
-		}
-
-		slog.Error("cannot get calendar", err)
+		slog.Error("cannot create calendar", err)
 
 		w.WriteHeader(http.StatusInternalServerError)
 

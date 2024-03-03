@@ -21,6 +21,8 @@ func NewHandler(
 	}
 
 	mux.Get("/calendar/{calendarId}", handler.getCalendar)
+	mux.Put("/calendar/{ownerId}", handler.createCalendar)
+	mux.Post("/calendar", handler.updateCalendar)
 
 	return mux
 }

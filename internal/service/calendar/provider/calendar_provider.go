@@ -8,5 +8,6 @@ import (
 
 type CalendarProvider interface {
 	Calendar(ctx context.Context, id string) (*domain.Calendar, error)
-	Create(ctx context.Context, calendar *domain.Calendar) error
+	Create(ctx context.Context, calendar *domain.Calendar) (string, error)
+	Update(ctx context.Context, calendar *domain.Calendar) error
 }

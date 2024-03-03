@@ -1,4 +1,4 @@
-package calendar
+package models
 
 type CalendarResponse struct {
 	CalendarID      string `json:"calendarId"`

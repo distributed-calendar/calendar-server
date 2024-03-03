@@ -3,6 +3,7 @@ package calendar
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"github.com/distributed-calendar/calendar-server/domain"
 	"github.com/jackc/pgx/v5"
@@ -10,9 +11,11 @@ import (
 )
 
 var (
-	createCalendarSQL = `INSERT INTO calendar(owner_id) VALUES ($1)`
+	createCalendarSQL = `INSERT INTO calendar(owner_id) VALUES ($1) RETURNING calendar_id`
 
-	getCalendarSQL = `SELECT calendar_id FROM calendar WHERE calendar_id = $1`
+	getCalendarSQL = `SELECT owner_id FROM calendar WHERE calendar_id = $1`
+
+	updateCalendarSQL = `UPDATE calendar SET owner_id = $2 WHERE calendar_id = $1`
 )
 
 type Repo struct {
@@ -26,12 +29,13 @@ func NewRepo(db *pgxpool.Pool) *Repo {
 }
 
 func (repo *Repo) Calendar(ctx context.Context, id string) (*domain.Calendar, error) {
-	calendar := &domain.Calendar{}
+	calendar := &domain.Calendar{
+		ID: id,
+	}
 
 	row := repo.db.QueryRow(ctx, getCalendarSQL, id)
 
 	err := row.Scan(
-		&calendar.ID,
 		&calendar.OwnerID,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -41,8 +45,18 @@ func (repo *Repo) Calendar(ctx context.Context, id string) (*domain.Calendar, er
 	return calendar, err
 }
 
-func (repo *Repo) Create(ctx context.Context, calendar *domain.Calendar) error {
-	_, err := repo.db.Exec(ctx, createCalendarSQL, calendar.OwnerID)
+func (repo *Repo) Create(ctx context.Context, calendar *domain.Calendar) (string, error) {
+	var calendarID string
+
+	row := repo.db.QueryRow(ctx, createCalendarSQL, calendar.OwnerID)
+	err := row.Scan(&calendarID)
+
+	return calendarID, err
+}
+
+func (repo *Repo) Update(ctx context.Context, calendar *domain.Calendar) error {
+	slog.Debug("", "id", calendar.ID, "ownerid", calendar.OwnerID)
+	_, err := repo.db.Exec(ctx, updateCalendarSQL, calendar.ID, calendar.OwnerID)
 
 	return err
 }
