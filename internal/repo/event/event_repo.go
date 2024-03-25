@@ -42,7 +42,7 @@ func (r *Repo) GetUserEvents(ctx context.Context, userID int, fromDt, toDt time.
 
 	rows, err := r.db.Query(
 		ctx,
-		"SELECT id, name, start_time, end_time, description FROM event WHERE creator_id = $1 AND start_time <= $3",
+		"SELECT id, name, start_time, end_time, description FROM event WHERE creator_id = $1 AND $2 <= start_time AND start_time <= $3",
 		userID,
 		fromDt,
 		toDt,
