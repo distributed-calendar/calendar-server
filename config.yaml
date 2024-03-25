@@ -6,3 +6,5 @@ postgres:
   dbname: ${POSTGRES_DBNAME}
 httpServer:
   port: 8080
+telegram:
+  botToken: ${TELEGRAM_BOT_TOKEN}

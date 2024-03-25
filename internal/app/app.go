@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	conf "github.com/Mth-Ryan/go-yaml-cfg"
-	calendarhandler "github.com/distributed-calendar/calendar-server/internal/handler/calendar"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog/v2"
@@ -16,7 +15,8 @@ import (
 	_ "github.com/lib/pq"
 	"golang.org/x/sync/errgroup"
 
-	calendarservice "github.com/distributed-calendar/calendar-server/internal/service/calendar"
+	eventservice "github.com/distributed-calendar/calendar-server/internal/service/event"
+	telegramservice "github.com/distributed-calendar/calendar-server/internal/service/telegram"
 )
 
 type errFunc func() error
@@ -30,7 +30,8 @@ type App struct {
 
 	pgConnPool *pgxpool.Pool
 
-	calendarService *calendarservice.Service
+	eventService    *eventservice.Service
+	telegramService *telegramservice.Service
 }
 
 func (a *App) Run() {
@@ -85,9 +86,10 @@ func (a *App) init(configPath string) error {
 
 	a.initHttpServer()
 
-	a.initCalendarService()
+	a.initEventService()
 
-	a.initCalendarHandler()
+	a.initTelegramService()
+	a.initTelegramBot()
 
 	return nil
 }
@@ -149,11 +151,6 @@ func (a *App) initPostgres() error {
 	return nil
 }
 
-func (a *App) initCalendarHandler() {
-	handler := calendarhandler.NewHandler(a.calendarService)
-	a.mux.Mount("/", handler)
-}
-
 func (a *App) initHttpServer() {
 	server := &http.Server{
 		Addr:    ":" + a.cfg.HttpServer.Port,
@@ -169,15 +166,6 @@ func (a *App) initHttpServer() {
 		}
 
 		return e
-	})
-}
-
-func (a *App) pingHandler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte("pong"))
-		if err != nil {
-			slog.Error("cannot write to ping", err)
-		}
 	})
 }
 

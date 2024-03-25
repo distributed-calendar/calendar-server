@@ -11,4 +11,7 @@ type Config struct {
 	HttpServer struct {
 		Port string `yaml:"port"`
 	} `yaml:"httpServer"`
+	Telegram struct {
+		BotToken string `yaml:"botToken"`
+	} `yaml:"telegram"`
 }

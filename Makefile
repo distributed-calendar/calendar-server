@@ -25,7 +25,7 @@ test-run:
 build:
 	go build .
 
-run: compose-up run-go compose-down
+run: compose-up migrate-up run-go migrate-down compose-down
 
 run-go:
 	go run .

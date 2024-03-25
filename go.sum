@@ -1,5 +1,7 @@
 github.com/Mth-Ryan/go-yaml-cfg v0.2.0 h1:RsR7AyY8UEbGrAcxkLYAX7qmfWNABAdiyPbO3izuw9w=
 github.com/Mth-Ryan/go-yaml-cfg v0.2.0/go.mod h1:tAF+F1sphVRDd2KDBnYGDYjno1+LHh9wzQpLjnbAEJo=
+github.com/NicoNex/echotron/v3 v3.29.0 h1:STzeYNauF+h82vTL9QIqIBEvhke/bsxgYKQMCmJKnLM=
+github.com/NicoNex/echotron/v3 v3.29.0/go.mod h1:LpP5IyHw0y+DZUZMBgXEDAF9O8feXrQu7w7nlJzzoZI=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
