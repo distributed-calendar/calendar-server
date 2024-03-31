@@ -19,7 +19,7 @@ func (b *botAPI) handleStart(update *echotron.Update) stateFn {
 		return b.handleStart
 	}
 
-	_, err := b.services.telegramService.CreateUser(
+	_, err := b.services.telegramService.CreateUserByTelegramID(
 		context.Background(),
 		b.chatID,
 		update.Message.From.FirstName,

@@ -15,6 +15,9 @@ import (
 	_ "github.com/lib/pq"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/distributed-calendar/calendar-server/internal/adapter/cache"
+	"github.com/distributed-calendar/calendar-server/internal/repo/event"
+	"github.com/distributed-calendar/calendar-server/internal/repo/user"
 	eventservice "github.com/distributed-calendar/calendar-server/internal/service/event"
 	telegramservice "github.com/distributed-calendar/calendar-server/internal/service/telegram"
 )
@@ -30,8 +33,13 @@ type App struct {
 
 	pgConnPool *pgxpool.Pool
 
+	cacheAdapter *cache.Adapter
+
 	eventService    *eventservice.Service
 	telegramService *telegramservice.Service
+
+	eventRepo *event.Repo
+	userRepo  *user.Repo
 }
 
 func (a *App) Run() {
@@ -84,12 +92,12 @@ func (a *App) init(configPath string) error {
 		return err
 	}
 
+	a.initRepos()
+	a.initAdapters()
+	a.initServices()
+	a.initPorts()
+
 	a.initHttpServer()
-
-	a.initEventService()
-
-	a.initTelegramService()
-	a.initTelegramBot()
 
 	return nil
 }

@@ -1,8 +1,8 @@
 package domain
 
 type User struct {
-	ID         int
-	Name       string
-	Surname    string
-	TelegramID int64
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Surname    string `json:"surname"`
+	TelegramID int64  `json:"telegram_id"`
 }

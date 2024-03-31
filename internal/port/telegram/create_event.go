@@ -10,6 +10,7 @@ import (
 )
 
 type createEventState struct {
+	messageID   int
 	name        string
 	startTime   time.Time
 	endTime     time.Time
@@ -25,19 +26,33 @@ func (b *botAPI) handleCreateEvent(_ *echotron.Update) stateFn {
 		return b.handleDefault
 	}
 
-	return b.handleCreateEventName
-}
-
-func (b *botAPI) handleCreateEventName(update *echotron.Update) stateFn {
-	name := update.Message.Text
-
 	state := &createEventState{
-		name: name,
+		messageID: res.Result.ID,
 	}
 
-	res, err := b.SendMessage("Введите время начала события", b.chatID, nil)
+	return wrapStateFn(b.handleCreateEventName, state)
+}
+
+func (b *botAPI) handleCreateEventName(update *echotron.Update, state *createEventState) stateFn {
+	name := update.Message.Text
+
+	state.name = name
+
+	// TODO
+	_, err := b.DeleteMessage(b.chatID, update.Message.ID)
 	if err != nil {
-		logSendEchotronError(res, err)
+		slog.Error("cannot delete message", err)
+
+		return b.handleDefault
+	}
+
+	editRes, err := b.EditMessageText(
+		"Введите время начала события",
+		echotron.NewMessageID(b.chatID, state.messageID),
+		nil,
+	)
+	if err != nil {
+		logSendEchotronError(editRes, err)
 
 		return b.handleDefault
 	}
@@ -46,9 +61,21 @@ func (b *botAPI) handleCreateEventName(update *echotron.Update) stateFn {
 }
 
 func (b *botAPI) handleCreateEventStartTime(update *echotron.Update, state *createEventState) stateFn {
+	// TODO
+	_, err := b.DeleteMessage(b.chatID, update.Message.ID)
+	if err != nil {
+		slog.Error("cannot delete message", err)
+
+		return b.handleDefault
+	}
+
 	startTime, err := time.Parse(time.DateTime, update.Message.Text)
 	if err != nil {
-		if res, e := b.SendMessage("Некорректная дата. Укажите дату в формате '2006-01-02 15:04:05'", b.chatID, nil); e != nil {
+		if res, e := b.EditMessageText(
+			"Некорректная дата. Укажите дату в формате '2006-01-02 15:04:05'",
+			echotron.NewMessageID(b.chatID, state.messageID),
+			nil,
+		); e != nil {
 			logSendEchotronError(res, e)
 
 			return b.handleDefault
@@ -59,7 +86,11 @@ func (b *botAPI) handleCreateEventStartTime(update *echotron.Update, state *crea
 
 	state.startTime = startTime
 
-	res, err := b.SendMessage("Введите время окончания события", b.chatID, nil)
+	res, err := b.EditMessageText(
+		"Введите время окончания события",
+		echotron.NewMessageID(b.chatID, state.messageID),
+		nil,
+	)
 	if err != nil {
 		logSendEchotronError(res, err)
 
@@ -70,9 +101,21 @@ func (b *botAPI) handleCreateEventStartTime(update *echotron.Update, state *crea
 }
 
 func (b *botAPI) handleCreateEventEndTime(update *echotron.Update, state *createEventState) stateFn {
+	// TODO
+	_, err := b.DeleteMessage(b.chatID, update.Message.ID)
+	if err != nil {
+		slog.Error("cannot delete message", err)
+
+		return b.handleDefault
+	}
+
 	endTime, err := time.Parse(time.DateTime, update.Message.Text)
 	if err != nil {
-		if res, e := b.SendMessage("Некорректная дата. Укажите дату в формате '2006-01-02 15:04:05'", b.chatID, nil); e != nil {
+		if res, e := b.EditMessageText(
+			"Некорректная дата. Укажите дату в формате '2006-01-02 15:04:05'",
+			echotron.NewMessageID(b.chatID, state.messageID),
+			nil,
+		); e != nil {
 			logSendEchotronError(res, e)
 
 			return b.handleDefault
@@ -82,7 +125,11 @@ func (b *botAPI) handleCreateEventEndTime(update *echotron.Update, state *create
 	}
 
 	if endTime.Before(state.startTime) {
-		if res, e := b.SendMessage("Дата окончания раньше, чем дата начала. Укажите корректную дату", b.chatID, nil); e != nil {
+		if res, e := b.EditMessageText(
+			"Дата окончания раньше, чем дата начала. Укажите корректную дату",
+			echotron.NewMessageID(b.chatID, state.messageID),
+			nil,
+		); e != nil {
 			logSendEchotronError(res, e)
 
 			return b.handleDefault
@@ -93,7 +140,11 @@ func (b *botAPI) handleCreateEventEndTime(update *echotron.Update, state *create
 
 	state.endTime = endTime
 
-	res, err := b.SendMessage("Введите описание события", b.chatID, nil)
+	res, err := b.EditMessageText(
+		"Введите описание события",
+		echotron.NewMessageID(b.chatID, state.messageID),
+		nil,
+	)
 	if err != nil {
 		logSendEchotronError(res, err)
 
@@ -104,6 +155,14 @@ func (b *botAPI) handleCreateEventEndTime(update *echotron.Update, state *create
 }
 
 func (b *botAPI) handleCreateEventDescription(update *echotron.Update, state *createEventState) stateFn {
+	// TODO
+	_, err := b.DeleteMessage(b.chatID, update.Message.ID)
+	if err != nil {
+		slog.Error("cannot delete message", err)
+
+		return b.handleDefault
+	}
+
 	desc := update.Message.Text
 	state.description = desc
 
@@ -111,7 +170,11 @@ func (b *botAPI) handleCreateEventDescription(update *echotron.Update, state *cr
 	if err != nil {
 		slog.Error("error getting user by telegram id", err)
 
-		if res, e := b.SendMessage("Внутренняя ошибка. Попробуйте позже", b.chatID, nil); e != nil {
+		if res, e := b.EditMessageText(
+			"Внутренняя ошибка. Попробуйте позже",
+			echotron.NewMessageID(b.chatID, state.messageID),
+			nil,
+		); e != nil {
 			logSendEchotronError(res, e)
 		}
 
@@ -130,9 +193,24 @@ func (b *botAPI) handleCreateEventDescription(update *echotron.Update, state *cr
 	if err != nil {
 		slog.Error("error adding event", err)
 
-		if res, e := b.SendMessage("Внутренняя ошибка. Попробуйте позже", b.chatID, nil); e != nil {
+		if res, e := b.EditMessageText(
+			"Внутренняя ошибка. Попробуйте позже",
+			echotron.NewMessageID(b.chatID, state.messageID),
+			nil,
+		); e != nil {
 			logSendEchotronError(res, e)
 		}
+
+		return b.handleDefault
+	}
+
+	editRes, err := b.EditMessageText(
+		"Событие успешно добавлено",
+		echotron.NewMessageID(b.chatID, state.messageID),
+		nil,
+	)
+	if err != nil {
+		logSendEchotronError(editRes, err)
 
 		return b.handleDefault
 	}

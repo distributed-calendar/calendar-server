@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -102,7 +103,11 @@ func (b *botAPI) Update(update *echotron.Update) {
 	}
 
 	if b.state == nil {
-		b.state = b.handleStart
+		if _, err := b.services.telegramService.GetUserByTelegramID(context.Background(), b.chatID); err != nil {
+			b.state = b.handleStart
+		} else {
+			b.state = b.handleDefault
+		}
 	}
 
 	b.state = b.state(update)
