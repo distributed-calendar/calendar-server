@@ -33,5 +33,5 @@ func (s *Service) GetUserEvents(ctx context.Context, userID int, fromDt, toDt ti
 }
 
 func (s *Service) UpdateEvent(ctx context.Context, event *domain.Event) error {
-	return s.UpdateEvent(ctx, event)
+	return s.eventProvider.UpdateEvent(ctx, event)
 }

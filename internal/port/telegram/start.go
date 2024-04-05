@@ -43,5 +43,20 @@ func (b *botAPI) handleStart(update *echotron.Update) stateFn {
 		return b.handleStart
 	}
 
+	_, err = b.SetMyCommands(
+		nil,
+		echotron.BotCommand{
+			Command:     commandCreateEvent,
+			Description: "Создать событие",
+		},
+		echotron.BotCommand{
+			Command:     commandGetEvents,
+			Description: "Получить все события",
+		},
+	)
+	if err != nil {
+		slog.Error("cannot set bot commands", err)
+	}
+
 	return b.handleDefault
 }

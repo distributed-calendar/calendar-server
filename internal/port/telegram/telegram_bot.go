@@ -14,8 +14,8 @@ type stateFn func(*echotron.Update) stateFn
 
 const (
 	commandStart       = "/start"
-	commandCreateEvent = "/createEvent"
-	commandGetEvents   = "/getEvents"
+	commandCreateEvent = "/create_event"
+	commandGetEvents   = "/get_events"
 	commandCancel      = "/cancel"
 )
 
@@ -95,12 +95,6 @@ func newBotAPICreator(api echotron.API, services *services) echotron.NewBotFn {
 
 func (b *botAPI) Update(update *echotron.Update) {
 	slog.Info("got new message")
-
-	if update.Message.Text == commandCancel {
-		b.state = b.handleDefault
-
-		return
-	}
 
 	if b.state == nil {
 		if _, err := b.services.telegramService.GetUserByTelegramID(context.Background(), b.chatID); err != nil {

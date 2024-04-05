@@ -30,7 +30,7 @@ func (b *botAPI) handleCreateEvent(_ *echotron.Update) stateFn {
 		messageID: res.Result.ID,
 	}
 
-	return wrapStateFn(b.handleCreateEventName, state)
+	return withOpts(withState(b.handleCreateEventName, state), b.withCancel)
 }
 
 func (b *botAPI) handleCreateEventName(update *echotron.Update, state *createEventState) stateFn {
@@ -57,7 +57,7 @@ func (b *botAPI) handleCreateEventName(update *echotron.Update, state *createEve
 		return b.handleDefault
 	}
 
-	return wrapStateFn(b.handleCreateEventStartTime, state)
+	return withOpts(withState(b.handleCreateEventStartTime, state), b.withCancel)
 }
 
 func (b *botAPI) handleCreateEventStartTime(update *echotron.Update, state *createEventState) stateFn {
@@ -81,7 +81,7 @@ func (b *botAPI) handleCreateEventStartTime(update *echotron.Update, state *crea
 			return b.handleDefault
 		}
 
-		return wrapStateFn(b.handleCreateEventStartTime, state)
+		return withOpts(withState(b.handleCreateEventStartTime, state), b.withCancel)
 	}
 
 	state.startTime = startTime
@@ -97,7 +97,7 @@ func (b *botAPI) handleCreateEventStartTime(update *echotron.Update, state *crea
 		return b.handleDefault
 	}
 
-	return wrapStateFn(b.handleCreateEventEndTime, state)
+	return withOpts(withState(b.handleCreateEventEndTime, state), b.withCancel)
 }
 
 func (b *botAPI) handleCreateEventEndTime(update *echotron.Update, state *createEventState) stateFn {
@@ -121,7 +121,7 @@ func (b *botAPI) handleCreateEventEndTime(update *echotron.Update, state *create
 			return b.handleDefault
 		}
 
-		return wrapStateFn(b.handleCreateEventEndTime, state)
+		return withOpts(withState(b.handleCreateEventEndTime, state), b.withCancel)
 	}
 
 	if endTime.Before(state.startTime) {
@@ -135,7 +135,7 @@ func (b *botAPI) handleCreateEventEndTime(update *echotron.Update, state *create
 			return b.handleDefault
 		}
 
-		return wrapStateFn(b.handleCreateEventEndTime, state)
+		return withOpts(withState(b.handleCreateEventEndTime, state), b.withCancel)
 	}
 
 	state.endTime = endTime
@@ -151,7 +151,7 @@ func (b *botAPI) handleCreateEventEndTime(update *echotron.Update, state *create
 		return b.handleDefault
 	}
 
-	return wrapStateFn(b.handleCreateEventDescription, state)
+	return withOpts(withState(b.handleCreateEventDescription, state), b.withCancel)
 }
 
 func (b *botAPI) handleCreateEventDescription(update *echotron.Update, state *createEventState) stateFn {
