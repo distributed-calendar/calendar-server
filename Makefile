@@ -1,17 +1,9 @@
-# export POSTGRES_HOST=localhost
-# export POSTGRES_PORT=5432
-# export POSTGRES_USER=postgres
-# export POSTGRES_PASSWORD=''
-# export POSTGRES_DBNAME=postgres
+export POSTGRES_HOST=localhost
+export POSTGRES_PORT=5432
+export POSTGRES_USER=postgres
+export POSTGRES_PASSWORD=''
+export POSTGRES_DBNAME=postgres
 export CONFIG_PATH=${PWD}/config.yaml
-
-export POSTGRES_HOST=rc1b-05sg36ada3gn3yls.mdb.yandexcloud.net
-export POSTGRES_PORT=6432
-export POSTGRES_USER=lyubaevd
-export POSTGRES_PASSWORD=141101danya
-export POSTGRES_DBNAME=db1
-export REDIS_ADDRS=rc1d-s3l6cskaf3e8fc28.mdb.yandexcloud.net:26379
-export REDIS_PASSWORD=141101danya
 
 .PHONY: build run test compose-up test-run compose-down test-setup test-teardown run-go
 
