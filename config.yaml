@@ -9,5 +9,5 @@ httpServer:
 telegram:
   botToken: ${TELEGRAM_BOT_TOKEN}
 redis:
-  addr: ${REDIS_ADDR}
+  addrs: ${REDIS_ADDRS}
   password: ${REDIS_PASSWORD}

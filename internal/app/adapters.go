@@ -7,5 +7,5 @@ func (a *App) initAdapters() {
 }
 
 func (a *App) initCacheAdapter() {
-	a.cacheAdapter = cache.NewAdapter(a.cfg.Redis.Addr, a.cfg.Redis.Password)
+	a.cacheAdapter = cache.NewAdapter(a.cfg.Redis.Addrs, a.cfg.Redis.Password)
 }

@@ -15,7 +15,7 @@ type Config struct {
 		BotToken string `yaml:"botToken"`
 	} `yaml:"telegram"`
 	Redis struct {
-		Addr     string `yaml:"addr"`
+		Addrs    string `yaml:"addrs"`
 		Password string `yaml:"password"`
 	} `yaml:"redis"`
 }

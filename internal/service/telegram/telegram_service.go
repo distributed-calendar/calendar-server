@@ -39,6 +39,7 @@ func (s *Service) CreateUserByTelegramID(ctx context.Context, telegramID int64, 
 
 func (s *Service) GetUserByTelegramID(ctx context.Context, telegramID int64) (*domain.User, error) {
 	user, err := s.cacheProvider.GetUser(ctx, telegramID)
+	slog.Info("got user")
 	if err == nil {
 		return user, nil
 	}

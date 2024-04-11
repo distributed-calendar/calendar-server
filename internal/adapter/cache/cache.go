@@ -4,23 +4,24 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/distributed-calendar/calendar-server/domain"
 	"github.com/redis/go-redis/v9"
 )
 
 type Adapter struct {
-	client *redis.Client
+	client redis.UniversalClient
 }
 
 func NewAdapter(
-	addr string,
+	addrs string,
 	password string,
 ) *Adapter {
-	client := redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: password,
-		DB:       0, // use default DB
+	client := redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs:      strings.Split(addrs, ","),
+		MasterName: "myredis",
+		Password:   password,
 	})
 
 	return &Adapter{
