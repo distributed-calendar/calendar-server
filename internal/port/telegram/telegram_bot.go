@@ -27,7 +27,8 @@ type Bot struct {
 }
 
 func (b *Bot) StartBot() error {
-	err := b.dispatcher.ListenWebhook(fmt.Sprintf("%s/%s", b.webhookURL, b.token))
+	err := b.dispatcher.Poll()
+	// err := b.dispatcher.ListenWebhook(fmt.Sprintf("%s/%s", b.webhookURL, b.token))
 	if err != nil {
 		slog.Error("error starting bot", err)
 	}
