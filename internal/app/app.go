@@ -40,6 +40,8 @@ type App struct {
 
 	eventRepo *event.Repo
 	userRepo  *user.Repo
+
+	httpServer *http.Server
 }
 
 func (a *App) Run() {
@@ -90,14 +92,15 @@ func (a *App) init(configPath string) error {
 
 	if err := a.initPostgres(); err != nil {
 		return err
+
 	}
+
+	a.initHttpServer()
 
 	a.initRepos()
 	a.initAdapters()
 	a.initServices()
 	a.initPorts()
-
-	a.initHttpServer()
 
 	return nil
 }
@@ -164,6 +167,8 @@ func (a *App) initHttpServer() {
 		Addr:    ":" + a.cfg.HttpServer.Port,
 		Handler: a.mux,
 	}
+
+	a.httpServer = server
 
 	a.addOnRun(func() error {
 		slog.Info("server started")

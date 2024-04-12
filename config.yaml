@@ -8,6 +8,7 @@ httpServer:
   port: 8080
 telegram:
   botToken: ${TELEGRAM_BOT_TOKEN}
+  webhookUrl: ${TELEGRAM_WEBHOOK_URL}
 redis:
   addrs: ${REDIS_ADDRS}
   password: ${REDIS_PASSWORD}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 
 	"github.com/NicoNex/echotron/v3"
 	"github.com/distributed-calendar/calendar-server/internal/service/event"
@@ -21,10 +22,13 @@ const (
 
 type Bot struct {
 	dispatcher *echotron.Dispatcher
+
+	token      string
+	webhookURL string
 }
 
 func (b *Bot) StartBot() error {
-	err := b.dispatcher.Poll()
+	err := b.dispatcher.ListenWebhook(fmt.Sprintf("%s/%s", b.webhookURL, b.token))
 	if err != nil {
 		slog.Error("error starting bot", err)
 	}
@@ -48,8 +52,10 @@ type services struct {
 
 func NewBot(
 	token string,
+	webhookURL string,
 	telegramService *telegram.Service,
 	eventService *event.Service,
+	server *http.Server,
 ) (*Bot, error) {
 	api, err := newAPI(token)
 	if err != nil {
@@ -69,8 +75,12 @@ func NewBot(
 		),
 	)
 
+	dispatcher.SetHTTPServer(server)
+
 	bot := &Bot{
 		dispatcher: dispatcher,
+		token:      token,
+		webhookURL: webhookURL,
 	}
 
 	return bot, nil

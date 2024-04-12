@@ -12,7 +12,8 @@ type Config struct {
 		Port string `yaml:"port"`
 	} `yaml:"httpServer"`
 	Telegram struct {
-		BotToken string `yaml:"botToken"`
+		BotToken   string `yaml:"botToken"`
+		WebhookURL string `yaml:"webhookUrl"`
 	} `yaml:"telegram"`
 	Redis struct {
 		Addrs    string `yaml:"addrs"`
