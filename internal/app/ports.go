@@ -7,7 +7,7 @@ func (a *App) initPorts() {
 }
 
 func (a *App) initTelegramBot() {
-	bot, err := telegram.NewBot(a.cfg.Telegram.BotToken, a.cfg.Telegram.WebhookURL, a.telegramService, a.eventService, a.httpServer)
+	bot, err := telegram.NewBot(a.cfg.Telegram.BotToken, a.cfg.Telegram.WebhookURL, a.telegramService, a.eventService)
 	if err != nil {
 		panic(err)
 	}

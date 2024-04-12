@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net/http"
 
 	"github.com/NicoNex/echotron/v3"
 	"github.com/distributed-calendar/calendar-server/internal/service/event"
@@ -55,7 +54,6 @@ func NewBot(
 	webhookURL string,
 	telegramService *telegram.Service,
 	eventService *event.Service,
-	server *http.Server,
 ) (*Bot, error) {
 	api, err := newAPI(token)
 	if err != nil {
@@ -74,8 +72,6 @@ func NewBot(
 			services,
 		),
 	)
-
-	dispatcher.SetHTTPServer(server)
 
 	bot := &Bot{
 		dispatcher: dispatcher,
