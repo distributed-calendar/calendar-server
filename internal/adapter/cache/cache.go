@@ -37,7 +37,6 @@ func NewAdapter(
 		Password: password,
 		TLSConfig: &tls.Config{
 			RootCAs:            rootCertPool,
-			InsecureSkipVerify: true,
 		},
 	})
 
