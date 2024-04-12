@@ -7,5 +7,10 @@ func (a *App) initAdapters() {
 }
 
 func (a *App) initCacheAdapter() {
-	a.cacheAdapter = cache.NewAdapter(a.cfg.Redis.Addrs, a.cfg.Redis.Password)
+	var err error
+	a.cacheAdapter, err = cache.NewAdapter(a.cfg.Redis.Addrs, a.cfg.Redis.Password, a.cfg.Redis.CertPath)
+
+	if err != nil {
+		panic(err)
+	}
 }

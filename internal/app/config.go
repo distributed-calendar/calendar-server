@@ -17,5 +17,6 @@ type Config struct {
 	Redis struct {
 		Addrs    string `yaml:"addrs"`
 		Password string `yaml:"password"`
+		CertPath string `yaml:"certPath"`
 	} `yaml:"redis"`
 }

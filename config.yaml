@@ -11,3 +11,4 @@ telegram:
 redis:
   addrs: ${REDIS_ADDRS}
   password: ${REDIS_PASSWORD}
+  certPath: ${REDIS_CERT_PATH}

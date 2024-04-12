@@ -2,8 +2,11 @@ package cache
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/distributed-calendar/calendar-server/domain"
@@ -17,16 +20,30 @@ type Adapter struct {
 func NewAdapter(
 	addrs string,
 	password string,
-) *Adapter {
+	certPath string,
+) (*Adapter, error) {
+	rootCertPool := x509.NewCertPool()
+	pem, err := os.ReadFile(certPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if ok := rootCertPool.AppendCertsFromPEM(pem); !ok {
+		return nil, fmt.Errorf("failed to append PEM")
+	}
+
 	client := redis.NewUniversalClient(&redis.UniversalOptions{
-		Addrs:      strings.Split(addrs, ","),
-		MasterName: "myredis",
-		Password:   password,
+		Addrs:    strings.Split(addrs, ","),
+		Password: password,
+		TLSConfig: &tls.Config{
+			RootCAs:            rootCertPool,
+			InsecureSkipVerify: true,
+		},
 	})
 
 	return &Adapter{
 		client: client,
-	}
+	}, nil
 }
 
 func (a *Adapter) Set(ctx context.Context, key string, value any) error {
