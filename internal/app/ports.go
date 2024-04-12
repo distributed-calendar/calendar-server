@@ -7,10 +7,10 @@ func (a *App) initPorts() {
 }
 
 func (a *App) initTelegramBot() {
-	bot, err := telegram.NewBot(a.cfg.Telegram.BotToken, a.cfg.Telegram.WebhookURL, a.telegramService, a.eventService)
+	_, fn, err := telegram.NewBot(a.cfg.Telegram.BotToken, a.telegramService, a.eventService)
 	if err != nil {
 		panic(err)
 	}
 
-	a.addOnRun(bot.StartBot)
+	a.mux.Post("/", fn)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 
 	"github.com/NicoNex/echotron/v3"
 	"github.com/distributed-calendar/calendar-server/internal/service/event"
@@ -22,19 +23,19 @@ const (
 type Bot struct {
 	dispatcher *echotron.Dispatcher
 
-	token      string
-	webhookURL string
+	token string
 }
 
-func (b *Bot) StartBot() error {
-	err := b.dispatcher.Poll()
-	// err := b.dispatcher.ListenWebhook(fmt.Sprintf("%s/%s", b.webhookURL, b.token))
-	if err != nil {
-		slog.Error("error starting bot", err)
-	}
+// func (b *Bot) StartBot() error {
+// 	err := b.dispatcher.Poll()
+// 	b.dispatcher.HandleWebhook()
+// 	// err := b.dispatcher.ListenWebhook(fmt.Sprintf("%s/%s", b.webhookURL, b.token))
+// 	if err != nil {
+// 		slog.Error("error starting bot", err)
+// 	}
 
-	return err
-}
+// 	return err
+// }
 
 type botAPI struct {
 	echotron.API
@@ -52,13 +53,12 @@ type services struct {
 
 func NewBot(
 	token string,
-	webhookURL string,
 	telegramService *telegram.Service,
 	eventService *event.Service,
-) (*Bot, error) {
+) (*Bot, http.HandlerFunc, error) {
 	api, err := newAPI(token)
 	if err != nil {
-		return nil, fmt.Errorf("cannot create echotron API: %w", err)
+		return nil, nil, fmt.Errorf("cannot create echotron API: %w", err)
 	}
 
 	services := &services{
@@ -77,10 +77,9 @@ func NewBot(
 	bot := &Bot{
 		dispatcher: dispatcher,
 		token:      token,
-		webhookURL: webhookURL,
 	}
 
-	return bot, nil
+	return bot, dispatcher.HandleWebhook, nil
 }
 
 func newAPI(token string) (echotron.API, error) {
