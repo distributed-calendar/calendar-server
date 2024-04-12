@@ -3,6 +3,7 @@ package telegram
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/distributed-calendar/calendar-server/domain"
 	"github.com/distributed-calendar/calendar-server/internal/service/telegram/provider"
@@ -29,7 +30,10 @@ func (s *Service) CreateUserByTelegramID(ctx context.Context, telegramID int64, 
 		return nil, err
 	}
 
-	err = s.cacheProvider.SetUser(ctx, telegramID, user)
+	cacheCtx, cfn := context.WithTimeout(ctx, 2*time.Second)
+	defer cfn()
+
+	err = s.cacheProvider.SetUser(cacheCtx, telegramID, user)
 	if err != nil {
 		slog.Error("error setting user to cache", err)
 	}
@@ -38,7 +42,10 @@ func (s *Service) CreateUserByTelegramID(ctx context.Context, telegramID int64, 
 }
 
 func (s *Service) GetUserByTelegramID(ctx context.Context, telegramID int64) (*domain.User, error) {
-	user, err := s.cacheProvider.GetUser(ctx, telegramID)
+	cacheCtx, cfn := context.WithTimeout(ctx, 2*time.Second)
+	defer cfn()
+
+	user, err := s.cacheProvider.GetUser(cacheCtx, telegramID)
 	slog.Info("got user")
 	if err == nil {
 		return user, nil

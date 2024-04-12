@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/NicoNex/echotron/v3"
 	"github.com/distributed-calendar/calendar-server/internal/service/event"
@@ -103,11 +102,8 @@ func newBotAPICreator(api echotron.API, services *services) echotron.NewBotFn {
 func (b *botAPI) Update(update *echotron.Update) {
 	slog.Info("got new message")
 
-	ctx, cfn := context.WithTimeout(context.Background(), 20*time.Second)
-	defer cfn()
-
 	if b.state == nil {
-		if _, err := b.services.telegramService.GetUserByTelegramID(ctx, b.chatID); err != nil {
+		if _, err := b.services.telegramService.GetUserByTelegramID(context.Background(), b.chatID); err != nil {
 			b.state = b.handleStart
 		} else {
 			b.state = b.handleDefault
