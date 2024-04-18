@@ -14,10 +14,11 @@ import (
 type stateFn func(*echotron.Update) stateFn
 
 const (
-	commandStart       = "/start"
-	commandCreateEvent = "/create_event"
-	commandGetEvents   = "/get_events"
-	commandCancel      = "/cancel"
+	commandStart               = "/start"
+	commandCreateEvent         = "/create_event"
+	commandGetEvents           = "/get_events"
+	commandCancel              = "/cancel"
+	commandSetupYandexCalendar = "/setup_yandex_calendar"
 )
 
 type Bot struct {
@@ -25,17 +26,6 @@ type Bot struct {
 
 	token string
 }
-
-// func (b *Bot) StartBot() error {
-// 	err := b.dispatcher.Poll()
-// 	b.dispatcher.HandleWebhook()
-// 	// err := b.dispatcher.ListenWebhook(fmt.Sprintf("%s/%s", b.webhookURL, b.token))
-// 	if err != nil {
-// 		slog.Error("error starting bot", err)
-// 	}
-
-// 	return err
-// }
 
 type botAPI struct {
 	echotron.API
