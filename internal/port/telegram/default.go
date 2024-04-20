@@ -10,8 +10,6 @@ func (b *botAPI) handleDefault(update *echotron.Update) stateFn {
 		return b.handleCreateEvent(update)
 	case commandGetEvents:
 		return b.handleGetEvents(update)
-	case commandSetupYandexCalendar:
-		return b.handleSetupYandexCalendar(update)
 	default:
 		res, err := b.SendMessage("Неизвестная команда", b.chatID, nil)
 		if err != nil {

@@ -18,7 +18,6 @@ const (
 	commandCreateEvent         = "/create_event"
 	commandGetEvents           = "/get_events"
 	commandCancel              = "/cancel"
-	commandSetupYandexCalendar = "/setup_yandex_calendar"
 )
 
 type Bot struct {
