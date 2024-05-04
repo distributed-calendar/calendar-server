@@ -24,15 +24,20 @@ func (r *Repo) GetEvent(ctx context.Context, eventID int) (*domain.Event, error)
 }
 
 func (r *Repo) AddEvent(ctx context.Context, event *domain.Event) error {
-	_, err := r.db.Exec(
+	var id int
+
+	row := r.db.QueryRow(
 		ctx,
-		"INSERT INTO event(name, start_time, end_time, description, creator_id) VALUES ($1, $2, $3, $4, $5)",
+		"INSERT INTO event(name, start_time, end_time, description, creator_id) VALUES ($1, $2, $3, $4, $5) RETURNING id",
 		event.Name,
 		event.StartTime,
 		event.EndTime,
 		event.Description,
 		event.CreatorID,
 	)
+
+	err := row.Scan(&id)
+	event.ID = id
 
 	return err
 }

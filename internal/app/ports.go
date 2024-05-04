@@ -7,7 +7,12 @@ func (a *App) initPorts() {
 }
 
 func (a *App) initTelegramBot() {
-	_, fn, err := telegram.NewBot(a.cfg.Telegram.BotToken, a.telegramService, a.eventService)
+	_, fn, err := telegram.NewBot(
+		a.cfg.Telegram.BotToken,
+		a.telegramService,
+		a.eventService,
+		a.timepadService,
+	)
 	if err != nil {
 		panic(err)
 	}

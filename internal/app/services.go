@@ -5,11 +5,13 @@ import (
 	"github.com/distributed-calendar/calendar-server/internal/repo/user"
 	eventservice "github.com/distributed-calendar/calendar-server/internal/service/event"
 	"github.com/distributed-calendar/calendar-server/internal/service/telegram"
+	"github.com/distributed-calendar/calendar-server/internal/service/timepad"
 )
 
 func (a *App) initServices() {
 	a.initEventService()
 	a.initTelegramService()
+	a.initTimepadService()
 }
 
 func (a *App) initEventService() {
@@ -20,4 +22,12 @@ func (a *App) initEventService() {
 func (a *App) initTelegramService() {
 	userRepo := user.NewRepo(a.pgConnPool)
 	a.telegramService = telegram.NewService(userRepo, a.cacheAdapter)
+}
+
+func (a *App) initTimepadService() {
+	a.timepadService = timepad.NewService(
+		a.timepadAdapter,
+		a.telegramService,
+		a.eventService,
+	)
 }

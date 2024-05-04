@@ -16,10 +16,12 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/distributed-calendar/calendar-server/internal/adapter/cache"
+	"github.com/distributed-calendar/calendar-server/internal/adapter/timepad"
 	"github.com/distributed-calendar/calendar-server/internal/repo/event"
 	"github.com/distributed-calendar/calendar-server/internal/repo/user"
 	eventservice "github.com/distributed-calendar/calendar-server/internal/service/event"
 	telegramservice "github.com/distributed-calendar/calendar-server/internal/service/telegram"
+	timepadservice "github.com/distributed-calendar/calendar-server/internal/service/timepad"
 )
 
 type errFunc func() error
@@ -33,10 +35,12 @@ type App struct {
 
 	pgConnPool *pgxpool.Pool
 
-	cacheAdapter *cache.Adapter
+	cacheAdapter   *cache.Adapter
+	timepadAdapter *timepad.Adapter
 
 	eventService    *eventservice.Service
 	telegramService *telegramservice.Service
+	timepadService  *timepadservice.Service
 
 	eventRepo *event.Repo
 	userRepo  *user.Repo

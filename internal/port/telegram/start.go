@@ -53,6 +53,10 @@ func (b *botAPI) handleStart(update *echotron.Update) stateFn {
 			Command:     commandGetEvents,
 			Description: "Получить все события",
 		},
+		echotron.BotCommand{
+			Command:     commandAddTimepadEvent,
+			Description: "Добавить событие из Timepad",
+		},
 	)
 	if err != nil {
 		slog.Error("cannot set bot commands", err)

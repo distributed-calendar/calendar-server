@@ -1,9 +1,13 @@
 package app
 
-import "github.com/distributed-calendar/calendar-server/internal/adapter/cache"
+import (
+	"github.com/distributed-calendar/calendar-server/internal/adapter/cache"
+	"github.com/distributed-calendar/calendar-server/internal/adapter/timepad"
+)
 
 func (a *App) initAdapters() {
 	a.initCacheAdapter()
+	a.initTimepadAdapter()
 }
 
 func (a *App) initCacheAdapter() {
@@ -13,4 +17,8 @@ func (a *App) initCacheAdapter() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (a *App) initTimepadAdapter() {
+	a.timepadAdapter = timepad.NewAdapter(a.cfg.Timepad.URL, a.cfg.Timepad.Token)
 }

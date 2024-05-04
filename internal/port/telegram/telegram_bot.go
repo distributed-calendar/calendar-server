@@ -9,15 +9,17 @@ import (
 	"github.com/NicoNex/echotron/v3"
 	"github.com/distributed-calendar/calendar-server/internal/service/event"
 	"github.com/distributed-calendar/calendar-server/internal/service/telegram"
+	"github.com/distributed-calendar/calendar-server/internal/service/timepad"
 )
 
 type stateFn func(*echotron.Update) stateFn
 
 const (
-	commandStart               = "/start"
-	commandCreateEvent         = "/create_event"
-	commandGetEvents           = "/get_events"
-	commandCancel              = "/cancel"
+	commandStart           = "/start"
+	commandCreateEvent     = "/create_event"
+	commandGetEvents       = "/get_events"
+	commandCancel          = "/cancel"
+	commandAddTimepadEvent = "/add_timepad_event"
 )
 
 type Bot struct {
@@ -38,12 +40,14 @@ type botAPI struct {
 type services struct {
 	telegramService *telegram.Service
 	eventService    *event.Service
+	timepadService  *timepad.Service
 }
 
 func NewBot(
 	token string,
 	telegramService *telegram.Service,
 	eventService *event.Service,
+	timepadService *timepad.Service,
 ) (*Bot, http.HandlerFunc, error) {
 	api, err := newAPI(token)
 	if err != nil {
@@ -53,6 +57,7 @@ func NewBot(
 	services := &services{
 		telegramService: telegramService,
 		eventService:    eventService,
+		timepadService:  timepadService,
 	}
 
 	dispatcher := echotron.NewDispatcher(

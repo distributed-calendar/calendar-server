@@ -12,3 +12,6 @@ redis:
   addrs: ${REDIS_ADDRS}
   password: ${REDIS_PASSWORD}
   certPath: ${REDIS_CERT_PATH}
+timepad:
+  url: ${TIMEPAD_URL}
+  token: ${TIMEPAD_TOKEN}
